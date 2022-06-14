@@ -1,0 +1,123 @@
+WindowManager:
+    FirstWindow:
+    CameraClick:
+    SecondWindow:
+    ThirdWindow:
+
+
+<FirstWindow>:
+    name: "first"
+
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.width, root.height
+
+        Label:
+            text: "Найдем нарушителей:)"
+            font_size: 32
+        TextInput:
+            id: my_text
+            text: "Введите адрес"
+        Button:
+            text: "Выбрать файл"
+            font_size: 32
+            on_press:
+                app.set_text(my_text.text)
+                app.root.current = "third"
+                root.manager.transition.direction = "right"
+
+        Button:
+            text: "Включить камеру"
+            font_size: 32
+            on_release:
+                app.set_text(my_text.text)
+                app.root.current = "my_camera"
+                root.manager.transition.direction = "down"
+
+
+<CameraClick>:
+    name: "my_camera"
+    BoxLayout:
+        orientation: 'vertical'
+        Camera:
+            id: camera
+            resolution: (640, 480)
+            play: False
+            allow_stretch: True
+            canvas.before:
+                PushMatrix
+                Rotate:
+                    angle: -90
+                    origin: self.center
+            canvas.after:
+                PopMatrix
+        Button:
+            text: 'Play'
+            on_press: camera.play = not camera.play
+            size_hint_y: None
+            height: '48dp'
+        Button:
+            text: 'Capture'
+            size_hint_y: None
+            height: '48dp'
+            on_press:
+                root.capture()
+                app.root.current = "second"
+                root.manager.transition.direction = "right"
+
+
+
+<SecondWindow>:
+    name: "second"
+
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.width, root.height
+
+        Label:
+            id: label1
+            text: "Обработаем фото"
+            font_size: 32
+
+        Image:
+            id: my_image
+            source: ""
+
+        Button:
+            text: "Показать фото"
+            font_size: 32
+            on_press:
+                root.detect_carplate()
+                root.write_prediction()
+
+
+        Button:
+            text: "Вернуться в начало"
+            font_size: 32
+            on_release:
+                app.root.current = "first"
+                root.manager.transition.direction = "up"
+
+
+<ThirdWindow>:
+    name: "third"
+    BoxLayout:
+        orientation: 'vertical'
+        size: root.width, root.height
+
+        FileChooserIconView:
+            id: filechooser
+            on_selection: root.selected(filechooser.selection)
+
+        Image:
+            id: my_image1
+            source: ""
+
+        Button:
+            text: "Проанализировать нарушение"
+            font_size: 32
+            on_release:
+                app.root.current = "second"
+                root.manager.transition.direction = "up"
+
+
